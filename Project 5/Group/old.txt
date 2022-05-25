@@ -1,0 +1,219 @@
+<!-- -->
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title> Calander </title> 
+        <meta charset="utf-8"/> 
+		<link rel="stylesheet" href="calendar.css">
+</head>
+
+<body> 
+
+<form>
+    <!-- <input  type = "button" value = "Next Month" id = "next_month_btn" onclick= "nextMonth()"> -->
+	<button id = "next_month_btn" type = "button">Next Month</button>
+</form>
+
+<form>
+    <!-- <input type = "button" value = "Previous Month" id = "prev_month_btn"> -->
+	<button id = "prev_month_btn" type = "button">Previous Month</button>
+</form> 
+
+<form>
+    <!-- <input type = "button" value = "Next Day" id = "next_day_btn"> -->
+	<button id = "next_day_btn" type = "button">Next Day</button>
+</form> 
+
+<form>
+    <!-- <input type = "button" value = "Previous Day" id = "prev_day_btn"> -->
+	<button id = "prev_day_btn" type = "button">Previous Day</button>
+</form> 
+
+<h1 id= "monthName">Month</h1>
+<script>
+// let currentMonth = new Month(2022, 3);
+
+const monthNames = ["January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
+
+//current date info
+let d = new Date();
+let year = d.getFullYear();
+let currentMonth = d.getMonth(); //NUMBER VALUE
+let monthString = monthNames[currentMonth]; //STRING (e.g., "March")
+let currentDay = d.getDate();
+let fulldate = monthString + " " + currentDay + ", " + year;
+//let firstOfMonth = new Date(year,currentMonth,1).getDay();
+let firstOfMonth = 3;
+let lastOfMonth = new Date(year, currentMonth + 1, 0).getDate();
+document.getElementById("monthName").innerHTML = fulldate; //print at the top of the page
+
+
+
+// let s = "April 1, 2022";
+// let testDate = new Date(s);
+// let a = testDate.getDay();
+// document.getElementById("tester").innerHTML = a;
+
+function nextMonth(){
+	//alert("next month");
+	currentMonth+=1;
+	if (currentMonth > 11){
+		currentMonth = 0;
+		year += 1;
+	}
+	monthString = monthNames[currentMonth];
+	firstOfMonth = new Date(year, currentMonth, 1).getDay();
+	lastOfMonth = new Date(year, currentMonth + 1, 0).getDate();
+	updateCalendar(); //set the calendar 
+	// alert("The new month is "+monthString+" "+year);
+}
+
+function previousMonth(){
+	//alert("previous month");
+	currentMonth = currentMonth - 1; 
+	if (currentMonth < 0){
+		currentMonth = 11;
+		year = year - 1;
+	}
+	monthString = monthNames[currentMonth];
+	firstOfMonth = new Date(year, currentMonth, 1).getDay();
+	lastOfMonth = new Date(year, currentMonth + 1, 0).getDate();
+	updateCalendar(); // Whenever the month is updated, we'll need to re-render the calendar in HTML
+	// alert("The new month is "+monthString+" "+year);
+}
+
+function nextDay(){
+	alert("next day");
+	currentDay+=1;
+	firstOfMonth = new Date(year, currentMonth, 1).getDay();
+	lastOfMonth = new Date(year, currentMonth + 1, 0).getDate();
+	lastOfPreviousMonth = new Date(year, currentMonth, 0).getDate();
+	if (currentDay > lastOfMonth){
+		currentDay = 1;
+		nextMonth();
+	} 
+	if (currentDay < 1){
+		currentDay = lastOfPreviousMonth;
+	}
+	monthString = monthNames[currentMonth];
+	firstOfMonth = new Date(year, currentMonth, 1).getDay();
+	lastOfMonth = new Date(year, currentMonth + 1, 0).getDate();
+	updateCalendar(); //set the calendar 
+}
+
+
+function previousDay(){
+	alert("previous day");
+	currentDay-=1;
+	firstOfMonth = new Date(year, currentMonth, 1).getDay();
+	lastOfMonth = new Date(year, currentMonth + 1, 0).getDate();
+	lastOfPreviousMonth = new Date(year, currentMonth, 0).getDate();
+	if (currentDay < 1){
+		currentDay = lastOfPreviousMonth;
+		previousMonth();
+	} else{
+		monthString = monthNames[currentMonth];
+		firstOfMonth = new Date(year, currentMonth, 1).getDay();
+		lastOfMonth = new Date(year, currentMonth + 1, 0).getDate();
+		updateCalendar(); //set the calendar
+	} 
+}
+
+
+const updateCalendar = function(){
+	alert("inside update cal");
+//	alert("Month starts on " + firstOfMonth + " and ends on " + lastOfMonth);
+	fulldate = monthString + " " + currentDay + ", " + year;
+	alert("here 1");
+	document.getElementById("monthName").innerHTML = fulldate;
+	alert("here 2");
+	//alert("First day " + firstOfMonth + " Last day " + lastOfMonth);
+	//d = (year, currentMonth, currentDay);
+    //let weeks = currentMonth.getWeeks();
+	
+	// for(let w in weeks){
+	// 	let days = weeks[w].getDates();
+	// 	// days contains normal JavaScript Date objects.
+		
+	// 	alert("Week starting on "+days[0]);
+		
+	// 	for(let d in days){
+	// 		// You can see console.log() output in your JavaScript debugging tool, like Firebug,
+	// 		// WebWit Inspector, or Dragonfly.
+	// 		console.log(days[d].toISOString());
+	// 	}
+	// }
+	zscript();
+	alert("BALLS");
+}
+updateCalendar();
+alert("here");
+//NEXT MONTH
+document.getElementById("next_month_btn").addEventListener("click", nextMonth, false);
+
+//PREVIOUS MONTH
+document.getElementById("prev_month_btn").addEventListener("click", previousMonth, false);
+
+//NEXT DAY
+document.getElementById("next_day_btn").addEventListener("click", nextDay, false);
+
+//PREV DAY
+document.getElementById("prev_day_btn").addEventListener("click",previousDay,false);
+
+
+
+</script>
+
+<div class="calendar-wrapper">
+	
+  <!--Use an Ordered List -->
+	<ol class="calendar" id = "cal">
+  
+  <!--
+	  Some way to mark Week 1, 2, 3, 4?
+		<ul>
+	  <li class = "first-week"> Week 1</li>
+	  <li class = "week"> Week 2</li>
+	  <li class = "week"> Week 3</li>
+	  </ul>
+  -->
+	  <li class="day">Sunday</li>
+	  <li class="day">Monday</li>
+	  <li class="day">Tuesday</li>
+	  <li class="day">Wednesday</li>
+	  <li class="day">Thursday</li>
+	  <li class="day">Friday</li>
+	  <li class="day">Saturday</li>
+	  
+	  <!-- HARD CODE -->
+	  <li class = "first-day">1</li>
+  
+	<script>
+	//alert("start of zane script. Date: " + fulldate + " first of month: " + firstOfMonth);	
+	  //start = firstOfMonth;
+	  //end = lastOfMonth;
+	  //document.documentElement.style.setProperty(`--text`, `'${v}'`);
+	  function zscript(){
+		  alert("here");
+	  let root = document.querySelector(':root');
+	  root.style.setProperty('--text', firstOfMonth);
+
+	  // Prints out the dates
+    for (i = 2; i <= lastOfMonth; i++) {
+	let li = document.createElement("li");
+	let text = document.createTextNode(i);
+	li.appendChild(text);
+	document.getElementById("cal").appendChild(li);
+  }
+}
+	</script>
+  
+  </ol>
+  </div> 
+
+
+</body>
+</html> -->;

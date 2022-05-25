@@ -1,0 +1,3 @@
+# Solved
+
+\b\w*[aeiouAEIOU]{3}\w*\b

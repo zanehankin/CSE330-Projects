@@ -1,0 +1,187 @@
+<!--
+HTML Validation: 
+JS Validation: X
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <title>My New and Improved Calculator</title>
+    </head>
+
+    <body>
+
+<!-- Form for First Number -->
+    <form method = "POST" class = "num1form" >
+            <input type = "number" name = "num1" id = "num1_id"/>
+            <label for = "num1_id">First Number:</label>
+    </form>
+<!-- Form for Second Number -->
+    <form method = "POST" class = "num2form" >
+            <input type = "number" name = "num2" id = "num2_id"/>
+            <label for = "num2_id">Second Number:</label>
+
+    </form>
+<!-- Form for Operator -->
+    <form method = "POST" class = "opbtns" >
+        <input type = "radio" name = "op" value = "+" id = "add"/>
+        <label for = "add">+</label>
+
+        <input type = "radio" name = "op" value = "-" id = "sub"/>
+        <label for = "sub">-</label>
+
+        <input type = "radio" name = "op" value = "*" id = "mult"/>
+        <label for = "mult">*</label>
+
+        <input type = "radio" name = "op" value = "/" id = "div"/>
+        <label for = "div">÷</label>
+    </form>
+
+            <script>
+                let num1 = null;
+                let num2 = null;
+                let op = null;
+                const assignOp = function(){
+                    op = event.target.value;
+                    math();
+                };
+                const math = function(){
+                    if(op == null){
+                        document.getElementById("result").textContent = "Please Input An Operator";
+                    }
+                    if(num1 == null || num2 == null){
+                        document.getElementById("result").textContent = "Please Input 2 Numbers";
+                    }
+                    else if(op == "+"){
+                        document.getElementById("result").textContent = parseFloat(num1) + parseFloat(num2);
+                    }
+                    else if(op == "-"){
+                        document.getElementById("result").textContent = num1 - num2;
+                    }
+                    else if(op == "*"){
+                        document.getElementById("result").textContent = num1 * num2;
+                    }
+                    else if(op == "/"){
+                        if(num2 != 0){
+                            document.getElementById("result").textContent = num1 / num2;
+                        }
+                        else{
+                            document.getElementById("result").textContent = "Illegal Operation: Cannot divide by 0";
+                        }
+                    }
+                };
+                const updateFirstNum = function(){
+                    num1 = event.target.value;
+                    math();
+                };
+
+                const updateSecondNum = function(){
+                    num2 = event.target.value;
+                    math();
+                };
+
+                document.getElementById("num1_id").addEventListener("keyup", updateFirstNum,false);
+                document.getElementById("num2_id").addEventListener("keyup", updateSecondNum, false);
+
+                document.getElementById("add").addEventListener("click",assignOp,false);
+                document.getElementById("sub").addEventListener("click",assignOp,false);
+                document.getElementById("mult").addEventListener("click",assignOp,false);
+                document.getElementById("div").addEventListener("click",assignOp,false);
+            </script> 
+            <p id = "result">Answer: </p>
+    </body>
+</html>
+
+
+<!--
+    document.write("CHECK1" + "<br>");
+                var num1 = document.getElementById("num1").value;
+                document.write(num1);
+                document.getElementById("result").textContent = "Result: " + num1;
+                document.write("CHECK2" + "<br>");
+
+                document.getElementById("button").addEventListener("click", function(){
+                        var num1 = document.getElementById("num1").value;
+                        var num2 = document.getElementById("num2").value;
+                        var op = document.getElementsById("op").value;
+                    document.write(num1);
+                    document.write("CHECK4" + "<br>");
+                        //var result = num1 
+                        //var op = document.getElementById("op").value;
+                        document.getElementById("result").textContent = "Result: " + num1 + op + num2;
+                    }, false);
+                    document.write("CHECK5" + "<br>");
+            -->
+<!-- OLD VERSION
+//The web page should have two input fields 
+// and a radio button group for the operation, 
+// with the 4 basic math operations represented 
+// (add, subtract, multiply, divide).
+
+<!DOCTYPE html>
+    <head>
+        <title>My New and Improved Calculator</title>
+    </head>
+
+    <body>
+
+    <form method = "POST" action = "/~zane/module5-individual-zanehankin/calculator.php" >
+            <p>
+                <label for = "num1">First Number:</label>
+                <input type = "text" name = "num1" id = "num1"/>
+            </p>
+
+            <p>
+                <label for = "num2">Second Number:</label>
+                <input type = "text" name = "num2" id = "num2"/>
+            </p>
+            <input type = "radio" name = "op" value = "+" id = "op"/>
+            <label for = "add">+</label>
+-->
+<!--
+            <input type = "radio" name = "op" value = "+">+
+            <br>
+            <input type = "radio" name = "op" value = "-">-
+            <br>
+            <input type = "radio" name = "op" value = "*">*
+            <br>
+            <input type = "radio" name = "op" value = "/">÷
+            <br>
+
+            <p>
+                <input id = "button" type = "submit" value = "Calculate"/>
+                <br><br>
+                <output id = "result">Result</output>
+            </p>
+
+            <script>
+                document.addEventListener("DOMContentLoaded", function(){
+                    document.getElementById("button").addEventListener("click", function(){
+                        var num1 = document.getElementById("num1").value;
+                        var num2 = document.getElementById("num2").value;
+                        var op = document.getElementsById("op").value;
+                        //var result = num1 
+                        //var op = document.getElementById("op").value;
+                        document.getElementById("result").textContent = "Result: " + num1 + op + num2;
+                    }, false);
+                }, false);
+                document.write("CHECK" + "<br>");
+
+                /*
+                document.addEventListener("DOMContentLoaded", function(){
+                    document.getElementById("button").addEventListener("click", function(){
+                        var num1 = document.getElementById("num1").value;
+                        var num2 = document.getElementById("num2").value;
+                        var op = document.getElementsById("op").value;
+                        //var result = num1 
+                        //var op = document.getElementById("op").value;
+                        document.getElementById("result").textContent = "Result: " + num1 + op + num2;
+                    }, false);
+                }, false);
+                document.write("CHECK" + "<br>");
+                */
+            </script> 
+    </body>
+</html>
+ -->

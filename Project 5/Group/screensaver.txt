@@ -1,0 +1,63 @@
+
+<!DOCTYPE html>
+<html>
+<body>
+    <head>
+      <title>My Calendar</title>
+    <link rel="stylesheet" href="oldcal.css">
+    </head>
+
+    <script>
+let firstOfMonth = 1;
+let lastOfMonth = 28;
+
+// function updateCalendar(){
+// 	fulldate = monthString + " " + currentDay + ", " + year;
+// 	document.getElementById("monthName").innerHTML = fulldate;
+// 	alert("First day " + firstOfMonth + " Last day " + lastOfMonth);
+// }
+  </script>
+
+<div class="calendar-wrapper">
+  <!-- HARD CODE -->
+  <h1>December 2020</h1>
+  
+<!-- Use an Ordered List -->
+  <ol class="calendar" id = "cal">
+
+    <li class="day">Sunday</li>
+    <li class="day">Monday</li>
+    <li class="day">Tuesday</li>
+    <li class="day">Wednesday</li>
+    <li class="day">Thursday</li>
+    <li class="day">Friday</li>
+    <li class="day">Saturday</li>
+    
+    <!-- HARD CODE -->
+    <li class = "first-day">1</li>
+
+  <script>
+      //current date info
+      firstOfMonth = 6;
+      lastOfMonth = 21;
+
+    //document.documentElement.style.setProperty(`--text`, `'${v}'`);
+    var root = document.querySelector(':root');
+    root.style.setProperty('--text', firstOfMonth);
+
+    //updateCalendar();
+
+    // Prints out the dates
+    for (i = 2; i <= lastOfMonth; i++) {
+      let li = document.createElement("li");
+      let text = document.createTextNode(i);
+      li.appendChild(text);
+      document.getElementById("cal").appendChild(li);
+    }
+  </script>
+
+</ol>
+</div>
+
+</body>
+</html>

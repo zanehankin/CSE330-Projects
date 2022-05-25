@@ -1,0 +1,14 @@
+https://developer.mozilla.org/en-US/docs/Web/CSS/:root
+https://css-tricks.com/a-calendar-in-three-lines-of-css/
+https://zellwk.com/blog/calendar-with-css-grid/
+https://developer.mozilla.org/en-US/docs/Web/CSS/grid-column-start
+https://www.codegrepper.com/code-examples/javascript/set+css+variable+from+javascript
+https://www.w3schools.com/jsref/met_cssstyle_setproperty.asp
+^^Above were some links we used to help print the calendar 
+
+https://www.tutorialrepublic.com/javascript-tutorial/javascript-cookies.php
+^^ this link was useful to help us read the token cookie
+
+https://stackoverflow.com/questions/52008722/document-queryselector-to-select-different-buttons
+https://www.techiedelight.com/get-value-of-checkbox-with-javascript/
+^^ These links were useful to understand how to get the value of "name" for a checkbox

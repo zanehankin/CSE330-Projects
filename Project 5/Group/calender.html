@@ -1,0 +1,665 @@
+<!--
+    To Do:
+    - Figure out how to compute weeks
+    - Set a class for "Current Day" and add a color on that class
+    - Cite any references
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title> Calendar </title> 
+        <meta charset="utf-8"/> 
+		<link rel="stylesheet" href="calendar.css">
+		<!-- <link rel="stylesheet" href="screensaver.css"> -->
+	</head>
+
+<body> 
+<h1 id = "whos">Name</h1>
+
+								<!-- Log In Stuff -->
+
+	<!-- Log In -->
+<div class = "login">
+	<button type = "button" id = "showlogin">Login</button>
+    <form method = "POST" id = "loginform" class = "login">
+		<button type = "button" id = "hidelogin" class = "login">Back</button>
+        <input type = "text" id = "loginusername" placeholder="Username..." class = "login" required>
+        <input type = "text" id = "loginpassword" placeholder="Password..." class = "login" required>
+        <button type = "button" id = "loginbutton">Submit</button>
+    </form>
+    <!-- <button type="submit" form="loginform" value="Submit" id = "button">Submit</button> -->
+	 <script src="login.js"></script> 
+</div>
+	<!-- End of Log In -->
+
+	<!-- Register -->
+<div class = "register">
+	<button type = "button" id = "showregister">Register</button>
+    <form method = "POST" id = "registerform" class = "register">
+		<button type = "button" id = "hideregister" class = "register">Back</button>
+        <input type = "text" id = "regusername" placeholder="Username..." class = "register" required>
+        <input type = "text" id = "regpassword" placeholder="Password..." class = "register" required>
+        <button type = "button" id = "registerbutton">Submit</button>
+    </form>
+
+
+	<!-- End of Register -->
+
+    <!-- <button type="submit" form="loginform" value="Submit" id = "button">Submit</button> -->
+	 <script src="register.js"></script> 
+
+</div>
+	<!-- End of Log In -->
+<button id = "logout" type = button>Log Out</button>	
+
+<script src="logout.js"></script> 
+
+<p id = "loginMessage"></p>
+								<!-- End of Log In Stuff -->
+
+<!-- Handling Tokens -->
+<script>
+function getCookie() {
+    // Split cookie string and get all individual name=value pairs in an array
+    let cookieArr = document.cookie.split(";");
+ //   return cookie[0];
+    // Loop through the array elements
+    for(let i = 0; i < cookieArr.length; i++) {
+        let cookiePair = cookieArr[i].split("=");
+        
+        /* Removing whitespace at the beginning of the cookie name
+        and compare it with the given string */
+        if("token" == cookiePair[0].trim()) {
+            // Decode the cookie value and return
+            return (cookiePair[1]);
+        }
+    }
+    
+    // Return null if not found
+    return null;
+}
+</script>
+<!-- End Handling Tokens -->
+
+								<!-- Start of Buttons Stuff -->
+
+	<!-- Search By Date -->
+	<form>
+		<button id = "showsearchdate" type = "button">Search By Date</button>
+	</form>
+
+	<form method = "POST" id = "addsearchform" class = "search">
+		<button type = "button" id = "hidesearchform">Back</button>
+		<input type = "date" id = "searchdate" class = "search" required>
+		<button type = "button" id = "searchdatebutton">Search</button>
+	</form>
+
+	<script src="searchbydate.js"></script>
+
+	<!-- Today -->
+	<form>
+		<!-- <input  type = "button" value = "Next Month" id = "next_month_btn" onclick= "nextMonth()"> -->
+		<button id="today_btn" type="button">Today</button>
+	</form>
+
+	<!-- Next Month -->
+	<form>
+		<!-- <input  type = "button" value = "Next Month" id = "next_month_btn" onclick= "nextMonth()"> -->
+		<button id="next_month_btn" type="button">Next Month</button>
+	</form>
+
+	<!-- Previous Month -->
+	<form>
+		<!-- <input type = "button" value = "Previous Month" id = "prev_month_btn"> -->
+		<button id="prev_month_btn" type="button">Previous Month</button>
+	</form>
+
+	<!-- Next Day -->
+	<form>
+		<!-- <input type = "button" value = "Next Day" id = "next_day_btn"> -->
+		<button id="next_day_btn" type="button">Next Day</button>
+	</form>
+
+	<!-- Previous Day -->
+	<form>
+		<!-- <input type = "button" value = "Previous Day" id = "prev_day_btn"> -->
+		<button id="prev_day_btn" type="button">Previous Day</button>
+	</form>
+
+	<!-- Next Year -->
+	<form>
+		<!-- <input type = "button" value = "Previous Day" id = "prev_day_btn"> -->
+		<button id="next_year_btn" type="button">Next Year</button>
+	</form>
+
+	<!-- Previous Year -->
+	<form>
+		<!-- <input type = "button" value = "Previous Day" id = "prev_day_btn"> -->
+		<button id="prev_year_btn" type="button">Previous Year</button>
+	</form>
+								<!-- End of Buttons Stuff -->
+
+
+
+								<!-- Start of Add Event -->
+<form>
+	<button id = "showaddevent" type = "button">Add Event</button>
+</form>
+
+<form method = "POST" id = "addeventform" class = "addevent">
+	<button type = "button" id = "hideaddevent" class = "addevent">Back</button>
+	<input type = "text" id = "eventtitle" placeholder="Event Title..." class = "addevent" required>
+	<input type = "time" id = "eventtime" class = "addevent" required>
+	<input type = "date" id = "eventdate" class = "addevent" required>
+	<button type = "button" id = "addeventbutton">Submit</button>
+</form>
+
+<form>
+	<button id = "showrepeatevent" type = "button">Repeat Event?</button>
+</form>
+
+<form method = "POST" id = "repeatEventForm" class = "repeatEvent">
+	<button type = "button" id = "hideRepeat" class = "repeatEvent">Back</button>
+	<input type = "checkbox" name = "repeat" id = "repeatDay" value = "repeatDay">
+	<label for="repeatDay">Repeat Daily</label>
+	<input type = "checkbox" name = "repeat" id = "repeatMonth" value = "repeatWeek">
+	<label for="repeatMonth">Repeat Monthly</label>
+	<input type = "checkbox" name = "repeat" id = "repeatYear" value = "repeatYear">
+	<label for="repeatYear">Repeat Yearly</label>
+
+	<input type = "text" id = "repeateventtitle" placeholder="Event Title..." class = "addevent" required>
+	<input type = "time" id = "repeateventtime" class = "addevent" required>
+	<input type = "date" id = "repeateventdate" class = "addevent" required>
+	<button type = "button" id = "repeatEventButton">Submit</button>
+	<!-- <button type = "button" id = "repeatEventButton">Submit</button> -->
+	<!-- <button id = "btn">Submit</button> -->
+	<!-- <button type = "button" id = "addeventbutton">Submit</button> -->
+</form>
+<script src="repeat.js"></script>
+<!-- <script type="text/javascript" src="repeat.js"></script> -->
+
+<button type = "button" id = "showeditform">Edit an Event</button>
+    <form method = "POST" id = "editeventform">
+		<button type = "button" id = "hideeditevent">Back</button>
+        <input type = "text" id = "edittitle" placeholder = "Event Title To Edit..." required>
+        <button type = "button" id = "editevent">Submit</button>
+    </form>
+
+	<form method = "POST" id = "newediteventform">
+        <input type = "text" id = "newedittitle" placeholder = "New Event Title..." required>
+		<input type = "time" id = "newedittime" required>
+		<input type = "date" id = "neweditdate">
+        <button type = "button" id = "neweditevent">Submit</button>
+    </form>
+	<script src="editevent.js"></script> 
+
+<button type = "button" id = "showdeleteform">Delete an Event</button>
+    <form method = "POST" id = "deleteeventform">
+		<button type = "button" id = "hidedeleteevent">Back</button>
+        <input type = "text" id = "deletetitle" placeholder = "Event Title" required>
+        <button type = "button" id = "deleteevent">Submit</button>
+
+        <script src="deleteevent.js"></script> 
+
+    </form>
+
+<script  src="addevent.js"></script>
+
+								<!-- End of Add Event -->
+
+
+
+								<!-- Start of usercheck -->
+
+								
+<script src="usercheck.js"></script>
+								
+								<!-- End of usercheck -->
+
+
+
+								<!-- Start of HTML Table Stuff -->
+<h1 id="monthName">Month</h1>
+
+
+								<!-- Print Events HTML -->
+<ol class="events" id="e"></ol>
+
+								
+<!--Use an HTML Table -->
+<table id="calendar">
+	<tr>
+		<!-- <th></th> -->
+		<th>Sunday</th>
+		<th>Monday</th>
+		<th>Tuesday</th>
+		<th>Wednesday</th>
+		<th>Thursday</th>
+		<th>Friday</th>
+		<th>Saturday</th>
+	</tr>
+</table>
+								<!-- End of HTML Table Stuff -->
+
+
+
+								<!-- Start of Screen Saver View - HTML -->
+<!-- <div class="calendar-wrapper">
+	HARD CODE
+	<h2 id="monthNameSS">Month</h2>
+	
+  Use an Ordered List
+	<ol class="printdates" id = "printdates">
+  
+	  <li class="day">Sunday</li>
+	  <li class="day">Monday</li>
+	  <li class="day">Tuesday</li>
+	  <li class="day">Wednesday</li>
+	  <li class="day">Thursday</li>
+	  <li class="day">Friday</li>
+	  <li class="day">Saturday</li>
+	 </ol>
+
+	<ol class="printdates" id = "printdates"> 
+	  HARD CODE
+	  <li class = "first-day">1</li>
+	</ol>
+-->
+								<!-- End of Screen Saver View - HTML -->
+
+
+								<!-- Start of Imported Functions -->
+
+<script src="importedfunctions.js"></script>
+
+								<!-- End of Imported Functions -->
+
+
+								<!-- Start of Calendar Stuff -->
+
+<script>
+
+	const monthNames = ["January", "February", "March", "April", "May", "June",
+		"July", "August", "September", "October", "November", "December"
+	];
+	const monthLength = [31, 28, 31, 30, 31, 30,
+		31, 31, 30, 31, 30, 31
+	];
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+
+	let today = new Date();
+	let currentYear = today.getFullYear();
+	let currentMonth = today.getMonth(); //NUMBER VALUE
+
+	let month = new Month(currentYear, currentMonth);
+
+	let monthString = monthNames[currentMonth]; //STRING (e.g., "March")
+	let currentDay = today.getDate();
+	// currentDay
+	let fulldate = monthString + " " + currentDay + ", " + currentYear;
+	let firstOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+	let lastOfMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+	let titles = new Array();// for printing events
+	let times = new Array();// for printing events
+	document.getElementById("monthName").innerHTML = fulldate; //print at the top of the page
+	// document.getElementById("monthNameSS").innerHTML = fulldate; //print at the top of the page
+</script>
+
+<script>
+	/*
+	function screensaver(){
+	firstOfMonth = firstOfMonth;
+	lastOfMonth = lastOfMonth;
+	today = today;
+
+  //document.documentElement.style.setProperty(`--text`, `'${v}'`);
+  var root = document.querySelector(':root');
+  root.style.setProperty('--text', firstOfMonth+1);
+
+  // Prints out the dates
+  for (i = 2; i <= lastOfMonth; i++) {
+	if(i == today){
+		let li = document.createElement("li");
+		let text = document.createTextNode(i);
+		li.appendChild(text);
+		li.className = "today";
+		// alert("SHIII");
+	}
+	let li = document.createElement("li");
+	// let text = document.createTextNode(i);
+	li.innerHTML = i;
+	// li.id = "ts"
+	// li.appendChild(text);
+	// li.id = "ss";
+	document.getElementById("printdates").appendChild(li);
+  }
+}
+*/
+</script>
+
+<script>
+	////////////////////////////////////////////////////////////////////////////////////////////////
+
+	//add event listener to build a calendar upon the page loacding
+	//document.addEventListener("DOMContentLoaded", updateCalendar(currentMonth), false);
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+	// Buttons
+		// TODAY
+		document.getElementById("today_btn").addEventListener("click", Today, false);
+
+		// NEXT MONTH
+		document.getElementById("next_month_btn").addEventListener("click", nextMonth, false);
+
+		//PREVIOUS MONTH
+		document.getElementById("prev_month_btn").addEventListener("click", previousMonth, false);
+
+		//NEXT DAY
+		document.getElementById("next_day_btn").addEventListener("click", nextDay, false);
+
+		//PREV DAY
+		document.getElementById("prev_day_btn").addEventListener("click", previousDay, false);
+
+		//NEXT YEAR
+		document.getElementById("next_year_btn").addEventListener("click", nextYear, false);
+
+		//PREV YEAR
+		document.getElementById("prev_year_btn").addEventListener("click", previousYear, false);
+	////////////////////////////////////////////////////////////////////////////////////////////////
+
+	////////////////////////////////////////////////////////////////////////////////////////////////
+	// Calendar Functions
+	function Today() {
+		currentYear = today.getFullYear();
+		currentMonth = today.getMonth(); //NUMBER VALUE
+		month = new Month(currentYear, currentMonth);
+		monthString = monthNames[currentMonth]; //STRING (e.g., "March")
+		currentDay = today.getDate();
+		firstOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+		lastOfMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+		fulldate = monthString + " " + currentDay + ", " + currentYear;
+		clearCal();
+		// clearSS();
+		updateCalendar(); //set the calendar 
+	}
+
+	function nextYear() {
+		//alert("next year");
+		currentYear += 1;
+		firstOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+		lastOfMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+		lastOfPreviousMonth = new Date(currentYear, currentMonth, 0).getDate();
+		monthString = monthNames[currentMonth];
+		firstOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+		lastOfMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+		fulldate = monthString + " " + currentDay + ", " + currentYear;
+		clearCal();
+		// clearSS();
+		updateCalendar(); //set the calendar 
+	}
+
+	function previousYear() {
+		//alert("previous year");
+		currentYear -= 1;
+		firstOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+		lastOfMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+		lastOfPreviousMonth = new Date(currentYear, currentMonth, 0).getDate();
+		monthString = monthNames[currentMonth];
+		firstOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+		lastOfMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+		fulldate = monthString + " " + currentDay + ", " + currentYear;
+		clearCal();
+		// clearSS();
+		updateCalendar(); //set the calendar 
+	}
+
+	function nextMonth() {
+		//alert("next month");
+		currentMonth += 1;
+		if (currentMonth > 11) {
+			currentMonth = 0;
+			currentYear += 1;
+		}
+		monthString = monthNames[currentMonth];
+		firstOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+		lastOfMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+		fulldate = monthString + " " + currentDay + ", " + currentYear;
+		clearCal();
+		// clearSS();
+		updateCalendar(); //set the calendar 
+		// alert("The new month is "+monthString+" "+year);
+	}
+
+	function previousMonth() {
+		//alert("previous month");
+		currentMonth = currentMonth - 1;
+		if (currentMonth < 0) {
+			currentMonth = 11;
+			currentYear -= 1;
+		}
+		monthString = monthNames[currentMonth];
+		firstOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+		lastOfMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+		fulldate = monthString + " " + currentDay + ", " + currentYear;
+		clearCal();
+		// clearSS();
+		updateCalendar(); // Whenever the month is updated, we'll need to re-render the calendar in HTML
+		// alert("The new month is "+monthString+" "+year);
+	}
+
+	function nextDay() {
+		//alert("next day");
+		currentDay += 1;
+		firstOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+		lastOfMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+		lastOfPreviousMonth = new Date(currentYear, currentMonth, 0).getDate();
+		if (currentDay > lastOfMonth) {
+			currentDay = 1;
+			nextMonth();
+		}
+		if (currentDay < 1) {
+			currentDay = lastOfPreviousMonth;
+		}
+		monthString = monthNames[currentMonth];
+		firstOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+		lastOfMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+		fulldate = monthString + " " + currentDay + ", " + currentYear;
+		clearCal();
+		// clearSS();
+		updateCalendar(); //set the calendar 
+	}
+
+
+	function previousDay() {
+		//alert("previous day");
+		currentDay -= 1;
+		firstOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+		lastOfMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+		lastOfPreviousMonth = new Date(currentYear, currentMonth, 0).getDate();
+		if (currentDay < 1) {
+			currentDay = lastOfPreviousMonth;
+			previousMonth();
+		} else {
+			monthString = monthNames[currentMonth];
+			firstOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+			lastOfMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+			fulldate = monthString + " " + currentDay + ", " + currentYear;
+			clearCal();
+			// clearSS();
+			updateCalendar(); //set the calendar
+		}
+	}
+
+	function clearCal() { /* NEED TO CITE FROM STACK OVERFLOW */
+		//wksRemove=currentMonth.getWeeks().length;
+		let table = document.getElementById("calendar");
+		for (i = 0; i < 6; i++) {
+			table.deleteRow(1);
+		}
+	}
+
+	// function clearSS() { /* NEED TO CITE FROM STACK OVERFLOW */
+	// 	console.log("CLEAR SS");
+	// 	let a = document.getElementById("printdates")
+	// 	a.innerHTML = "";
+	// 	console.log(a);
+	// 	// for(let i = 0; i < 31; i++){
+	// 	// 	console.log(a);
+	// 	// }
+	// }
+
+	/**/
+	function handleEvents(newTime, newTitle){
+		clearPrint(titles);
+		// alert("HANDLE EVENTS");
+		titles = (newTitle);
+		times = (newTime);
+		if(document.getElementById("e").value == ""){
+			console.log("EMPTY");
+		}
+		/* This prints the events by looping through the TITLES array, printing
+			the title and the time for each event, by making a li node and appending
+			it to the ordered list with id "e". This ol is defined up above */
+		for (let i = 0; i < titles.length; i++){
+			let li = document.createElement("li");
+			let text = document.createTextNode("Event " + (i+1) + ": " + titles[i] + " at " + times[i]);
+			li.appendChild(text);
+			// console.log(text);
+			document.getElementById("e").appendChild(li);
+		}				
+	}
+	/* Use Clear Print to erase the elements of the ordered list */
+	function clearPrint(){
+		document.getElementById("e").innerHTML = "";
+	}
+	/* If NO events today -> print no events*/
+	function handleNoEvents(user){
+		// alert("HANDLE NO EVENTS");
+		clearPrint();
+		if (user){
+			document.getElementById("e").innerHTML = "No Events Today!";
+		} else {
+			alert("You cannot view events until you log in");
+		}
+	}
+
+	function printEvents() {
+		const token = getCookie();
+		const data = {'day': currentDay, 'month' : currentMonth,
+		'year' : currentYear, 'token':token};
+		//sending to php page 
+
+		// alert(data);
+		
+		fetch('getevent.php', { //URL for destination php 
+			method: "POST",
+			body: JSON.stringify(data),
+			headers: { 'content-type': 'application/json' }
+		})
+		.then(response => response.json())
+		.then(data => data.success ? (handleEvents(data.time, data.title)) : handleNoEvents(data.user))
+	//	.then(data => (data.success ? (alert("You've been logged in!"),loggedin(username)): alert(`You were not logged in: ${data.message}`)))
+	//  then(data => alert((data.success ? ("You've been logged in!", loggedin()): `You were not logged in: ${data.message}`)))
+		.catch(err => alert((err)));
+	}
+
+	// function checkbox(){
+	// 	const repeat = document.querySelector('#repeatEventButton');
+	// 	alert("CHECK 1");
+	// 	// alert(input[name="repeat"]);
+	// 		repeat.addEventListener('click', (event) => {
+	// 			alert("CHECK 2");
+	// 			let checkboxes = document.querySelectorAll('input[name="repeat":checked');
+	// 			let values = [];
+	// 			checkboxes.forEach((checkbox) => {
+	// 				values.push(checkbox.value);
+	// 			});
+	// 			alert("CHECK 3");
+	// 			return(values[0]);
+	// 		});
+	// 	// document.getElementById("repeatElement").innerHTML = d + m + y;
+	// }
+
+	function updateCalendar() {
+		printEvents();
+		// screensaver();
+
+		// Print out the DATE at the top of the calendar
+		document.getElementById("monthName").innerHTML = fulldate;
+		// document.getElementById("monthNameSS").innerHTML = fulldate;
+
+		/*
+		* Global Variables to Use:
+		* let d = new Date();
+		* let year = d.getFullYear();
+		* let currentMonth = d.getMonth(); //NUMBER VALUE
+		* let monthString = monthNames[currentMonth]; //STRING (e.g., "March")
+		* let currentDay = d.getDate();
+		* let fulldate = monthString + " " + currentDay + ", " + year;
+		* let firstOfMonth = new Date(year,currentMonth,1).getDay();
+		* let lastOfMonth = new Date(year, currentMonth + 1, 0).getDate();
+		*/
+
+		//document.getElementById("monthName").innerHTML =  JSON.parse(month);
+		
+		// Should be able to do the following, and use getWeeks from the Object Weeks
+		// wasn't working, idk why
+			//let numWeeks = month.getWeeks().length;
+		let weeks = 6;
+
+		// document.getElementById("monthName").innerHTML = fulldate;
+		let table = document.getElementById("calendar");
+
+		// Set a variable to insert rows, used in the first for loop
+		let row = table.insertRow();
+
+		// Set variables date and track to manage the dates that are inputted into the table cells
+		let date = 0;
+		let track = 0;
+
+		// Use a boolean to help fill out the rest of the calendar, once the firstOfMonth date is set
+		let started = false;
+
+		// For loop for rows, appended to # of Weeks
+		for (r = 0; r < weeks; r++) {
+			// Put a row at the bottom, instead of the top
+			let rr = r + 1;
+			row = table.insertRow(rr);
+
+			// For loop for columns, appended to the bottom of days of the week
+			for (c = 0; c <= 6; c++) {
+				var cell = row.insertCell(c);
+				track++;
+
+				if (date < lastOfMonth && c == firstOfMonth && r == 0 || started == true) {
+					started = true;
+					date++;
+					cell.innerHTML = date;
+
+					// Set an ID tag for each cell?
+						// cell.id = cellID;
+					// Set a Class Name for each cell?
+						// cell.className="day";
+					// Events for each cell?
+					// document.getElementById(cellID).addEventListener("click", openFormEvent);
+
+					if (date > lastOfMonth) {
+						cell.innerHTML = " ";
+					}
+				}
+			}
+		}
+	}
+////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Call UpdateCalendar() to set the calendar when the user opens the page
+updateCalendar();
+
+</script>
+								<!-- End of Calendar Stuff -->
+
+</body>
+</html>
+

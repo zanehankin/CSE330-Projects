@@ -1,0 +1,113 @@
+html{
+  font-size: 20px;
+}
+table[id = "calendar"]{
+  /* background-color: red; */
+  border-style: dashed;
+  width: 100%;
+  text-align: center;
+  font-size: 30px;
+}
+th{
+    background-color: red;
+}
+h1{
+  text-align: center;
+  font-size: 50px;
+}
+button{
+  border-radius: 10px;
+  background-color: lightblue;
+  padding: 10px;
+}
+/* button[class = login]{
+  position: relative;
+  left: 50px;
+} */
+.login, button[id = loginbutton]{
+  width: 100%;
+}
+.register, button[id = registerbutton]{
+  width: 100%;
+}
+/* button[id = prev_year_btn]{
+  position: relative;
+  left: 50px;
+} */
+button[id = today_btn]{
+  position: relative;
+  left: 7%;
+  top: 50px;
+}
+/**/
+button[id = next_month_btn]{
+  position: relative;
+  left: 25%;
+  top: -10px;
+}
+button[id = prev_month_btn]{
+  position: relative;
+  left: 25%;
+  /* top: -15px; */
+}
+/**/
+button[id = next_day_btn]{
+  position: relative;
+  left: 45%;
+  top: -90px;
+}
+button[id = prev_day_btn]{
+  position: relative;
+  left: 45%;
+  top: -80px;
+}
+/**/
+button[id = next_year_btn]{
+  position: relative;
+  left: 65%;
+  top: -170px;
+}
+button[id = prev_year_btn]{
+  position: relative;
+  left: 65%;
+  top: -160px;
+}
+#i{
+  background-color: green;
+}
+/**/
+
+/* button[id = "showlogin"]{
+  font
+} */
+
+/* .calendar-wrapper {
+    max-width: 300px;
+    text-align: center;
+  }
+  .calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+  }
+  :root {
+    --text: '----';
+  }
+  .first-day {
+    grid-column-start: var(--text);
+  }
+  .day {
+    background: rgb(213, 212, 212);
+  }
+  h1 {
+    text-align: center;
+  }
+  ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+  }
+  li {
+    padding: 5px;
+  } */
+ 

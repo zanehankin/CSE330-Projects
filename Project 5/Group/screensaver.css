@@ -1,0 +1,33 @@
+/* .calendar-wrapper {
+    max-width: 300px;
+    text-align: center;
+  }
+  .calendar, .printdates {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+  }
+  :root {
+    --text: '----';
+  }
+  .today{
+    background-color: red;
+  }
+  .first-day {
+    grid-column-start: var(--text);
+    background-color: green;
+  }
+  .day {
+    background: rgb(213, 212, 212);
+  }
+  h1 {
+    text-align: center;
+  }
+  ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+  }
+  li {
+    padding: 5px;
+  } */
