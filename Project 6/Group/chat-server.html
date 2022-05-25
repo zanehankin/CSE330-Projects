@@ -1,0 +1,930 @@
+<!--
+    Add to chat log
+        - Time stamp?
+        - <Username> said: "chat"
+-->
+
+<!--
+    To DO:
+
+    Private messaging
+        - Only needs to be accomplished within the same room, not if theyre not in the same room
+
+    handle disconects
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <title>J&Z Chat Server</title>
+
+    <!-- FROM ZANE -->
+
+    <script src="/socket.io/socket.io.js"></script>
+
+ <!-- Latest compiled and minified CSS -->
+ <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+    <!-- <script type="text/javascript"> -->
+    <script>
+        let socketio = io.connect();
+        let chatId = "";
+        let userCreatedRooms = [];
+        let dmCheck = false;
+        let usertoDm = "";
+        let userFrom = "";
+        let dm = false;
+
+        /* <!-- FROM ZANE -->
+        <!-- BELOW  DEALS WITH ADDING MESSAGES --> */
+        ///////////// Sending Messages Code /////////////////////////////////////////////////////////////////////////////////    
+        socketio.on("message_to_client", function (data) {
+            // Starts when a message is sent
+            // Append an HR thematic break and the escaped HTML of the new message
+            chatId = "chat" + data["room"];
+            // document.getElementById
+            document.getElementById(chatId).appendChild(document.createElement("hr"));
+            document.getElementById(chatId).appendChild(document.createTextNode(data["username"] + ": " + data['message']));
+        });
+        socketio.on("message_to_DM", function (data) {
+            // alert("START OF MESSAGE TO DM");
+            // Starts when a message is sent
+            // Append an HR thematic break and the escaped HTML of the new message
+            chatId = "chat" + data["room"];
+            usertoDm = data["to"];
+            userFrom = data["from"];
+            let dmRoom = data["room"];
+
+            if ((user == userFrom) && (newroom = dmRoom)) {
+                // alert("should show");
+                document.getElementById(chatId).appendChild(document.createElement("hr"));
+                document.getElementById(chatId).appendChild(document.createTextNode("(Private msg to " + usertoDm + ")" + ": " + data['message']));
+            } else if ((user == usertoDm) && (newroom = dmRoom)){
+                dmCheck = true;
+                usertoDm = userFrom;
+                document.getElementById("dmAlert").style.display = "block";
+                document.getElementById("dmAlert").innerText = "You are now DMing " + usertoDm;
+                document.getElementById(chatId).appendChild(document.createElement("hr"));
+                document.getElementById(chatId).appendChild(document.createTextNode("(Private msg from " + userFrom + ")" + ": " + data['message']));
+                document.getElementById("exitDm").style.display = "block";
+                document.getElementById("showDmForm").style.display = "none";
+                document.getElementById("directmessage").style.display = "none";
+            }
+            // else {
+            //     alert("NO MATCH");
+            // }
+        });
+
+        function sendMessage() {
+            let curId = "message_input" + newroom;
+            let msg = document.getElementById(curId).value;
+            if (Boolean(dmCheck)) { // Send ONLY TO DM
+                // alert("dm emit");
+                socketio.emit("dm_user", { message: msg, room: newroom, from: user, to: usertoDm });
+            }
+            else {
+                socketio.emit("message_to_server", { message: msg, room: newroom, username: user });
+            }
+        }
+
+        ///////////// Room Code //////////////////////////////////////////////////////////////////////////////////////////  
+        function showCreatePublic() {
+            document.getElementById("showcreateprivateroom").style.display = "none";
+            document.getElementById("makeroom").style.display = "block";
+            document.getElementById("showcreatepublicroom").style.display = "none";
+        }
+
+        function hideCreatePublic() {
+            document.getElementById("showcreateprivateroom").style.display = "block";
+            document.getElementById("showcreatepublicroom").style.display = "block";
+            document.getElementById("makeroom").style.display = "none";
+        }
+
+        function showCreatePrivate() {
+            document.getElementById("showcreatepublicroom").style.display = "none";
+            document.getElementById("makeprivateroom").style.display = "block";
+            document.getElementById("showcreateprivateroom").style.display = "none";
+        }
+
+        function hideCreatePrivate() {
+            document.getElementById("showcreatepublicroom").style.display = "block";
+            document.getElementById("showcreateprivateroom").style.display = "block";
+            document.getElementById("makeprivateroom").style.display = "none";
+        }
+
+        //send roomaname to js
+        function sendRoomName() {
+            let roomname = document.getElementById("room_name").value;
+            if (roomname != "") {
+                roomname = roomname.trim();
+                roomname = roomname.toLowerCase();
+                userCreatedRooms.push(roomname);
+                socketio.emit("room_to_server", { room: roomname, pass: "" });
+                hideCreatePublic();
+            }
+        }
+        //Gotta figure out if i can put private rooms in the rooms array and still associate a password
+        // just emit from js to a different method?
+        // not sure
+        function sendPrivateRoomName() {
+            let roomname = document.getElementById("private_room_name").value;
+            let password = document.getElementById("private_room_password").value;
+            if (roomname != "") {
+                if (password != "") {
+                    roomname = roomname.trim();
+                    roomname = roomname.toLowerCase();
+                    userCreatedRooms.push(roomname);
+                    socketio.emit("room_to_server", { room: roomname, pass: password });
+                    hideCreatePrivate();
+                } else {
+                    alert("Private rooms must be password protected");
+                }
+            }
+        }
+
+        let newroom = 0;
+        let prevroom = 0;
+        let rooms = [];
+        let bannedRooms = [];
+        let password;
+        let chatroomname;
+        socketio.on("create_room", function (data) {
+            chatId = "";
+            document.getElementById("rooms").innerHTML = "";
+            rooms = data["roomlist"];
+            document.getElementById("chatRooms").innerHTML = "";
+            rooms.forEach(element => {
+                list = document.getElementById("rooms");
+                roombutton = document.createElement("button");
+                roombutton.setAttribute("id", element.number);
+                roombutton.setAttribute("class", "btn btn-info");
+                roombutton.innerText = element.name;
+                list.appendChild(roombutton);
+                // Add div tag for each element
+                chatRooms = document.getElementById("chatRooms");
+                let chatDiv = document.createElement("div");
+                chatId = "chat" + element.number;
+                chatDiv.setAttribute("id", chatId);
+                chatDiv.innerText = "Send a chat to " + element.name + " ";
+                chatRooms.appendChild(chatDiv);
+                document.getElementById(chatId).style.display = "none";
+                //ok so we make some div's with some chat id's... great but nothing is in them
+                let input = document.createElement("input");
+                input.type = "text";
+                // input.name = "chatlog";
+                input.setAttribute("name", "chatlog");
+                input.id = "message_input" + element.number;
+                let button = document.createElement("button");
+                button.onclick = sendMessage; //possibly no parentheses
+                button.innerText = "send";
+                button.setAttribute("class", "btn btn-primary");
+                document.getElementById(chatId).appendChild(input);
+                document.getElementById(chatId).appendChild(button);
+            });
+            document.getElementById("0").remove();
+            for (let i = 1; i < rooms.length; i++) {
+                if (bannedRooms.indexOf(i) == -1) {
+                    document.getElementById(i).addEventListener("click", function () {
+                        newroom = i;
+                        socketio.emit("changeroom", { name: user, newroom: newroom, previous: prevroom });
+                        prevroom = newroom;
+                        chatId = "chat" + newroom;
+                        chatroomname = document.getElementById(i).innerText;
+                        password = rooms[i].pass;
+
+                        if (password != "") { // Private Room
+                            document.getElementById("passwordguess").style.display = "block";
+                            document.getElementById("homebutton").style.display = "block";
+                            document.getElementById("roomlabel").innerHTML = chatroomname;
+                            document.getElementById("rooms").style.display = "none";
+                            document.getElementById("makeroom").style.display = "none";
+                            document.getElementById("showcreatepublicroom").style.display = "none";
+                            document.getElementById("makeprivateroom").style.display = "none";
+                            document.getElementById("showcreateprivateroom").style.display = "none";
+                        } else { // Public Room
+                            document.getElementById("roomlabel").innerHTML = chatroomname;
+                            document.getElementById("rooms").style.display = "none";
+                            document.getElementById("homebutton").style.display = "block";
+                            document.getElementById(chatId).style.display = "block";
+                            document.getElementById("makeroom").style.display = "none";
+                            document.getElementById("showcreatepublicroom").style.display = "none";
+                            document.getElementById("makeprivateroom").style.display = "none";
+                            document.getElementById("showcreateprivateroom").style.display = "none";
+                            document.getElementById("directmessage").style.display = "none";
+                            document.getElementById("showDmForm").style.display = "block";
+                            document.getElementById("exitDm").style.display = "none";
+                            if ((userCreatedRooms.indexOf(chatroomname) != -1) || admin) {
+                                document.getElementById("showremoveuser").style.display = "block";
+                                document.getElementById("showbanuser").style.display = "block";
+                            }
+                        }
+                    });
+                } else {
+                    document.getElementById(i).addEventListener("click", function () {
+                        alert("you have been banned from this room");
+                    });
+                }
+            }
+        });
+
+        function checkPassword() {
+            let guessedPass = document.getElementById("guessedpass").value;
+            if (userCreatedRooms.indexOf(chatroomname) != -1 || admin) {
+                document.getElementById("showremoveuser").style.display = "block";
+                document.getElementById("showbanuser").style.display = "block";
+                document.getElementById(chatId).style.display = "block";
+                document.getElementById("passwordguess").style.display = "none";
+                document.getElementById("directmessage").style.display = "none";
+                    document.getElementById("showDmForm").style.display = "block";
+                    document.getElementById("exitDm").style.display = "none";
+            } else if (guessedPass == password || admin) {
+                document.getElementById(chatId).style.display = "block";
+                document.getElementById("passwordguess").style.display = "none";
+                document.getElementById("directmessage").style.display = "none";
+                    document.getElementById("showDmForm").style.display = "block";
+                    document.getElementById("exitDm").style.display = "none";
+            } else {
+                alert("incorrect password");
+            }
+        }
+
+        function gohome() {
+            //just in case user didn't close dms:
+            dmCheck = false;
+            document.getElementById("dmAlert").style.display = "none";
+            hideDmForm();
+
+            newroom = 0;
+            socketio.emit("changeroom", { name: user, newroom: newroom, previous: prevroom });
+            prevroom = newroom;
+
+            document.getElementById("rooms").style.display = "block";
+            document.getElementById("homebutton").style.display = "none";
+            document.getElementById(chatId).style.display = "none";
+            document.getElementById("roomlabel").innerText = "Home Room";
+            document.getElementById("showcreatepublicroom").style.display = "block";
+            document.getElementById("showcreateprivateroom").style.display = "block";
+            document.getElementById("showremoveuser").style.display = "none";
+            document.getElementById("removeuser").style.display = "none";
+            document.getElementById("showbanuser").style.display = "none";
+            document.getElementById("banuser").style.display = "none";
+            document.getElementById("passwordguess").style.display = "none";
+            document.getElementById("directmessage").style.display = "none";
+            document.getElementById("showDmForm").style.display = "none";
+            document.getElementById("exitDm").style.display = "none";
+        }
+        //////////// Direct Message Code ////////////////////////////////////////////////////////////////
+        function showDmForm() {
+            document.getElementById("directmessage").style.display = "block";
+            document.getElementById("showDmForm").style.display = "none";
+        }
+        function hideDmForm() {
+            document.getElementById("directmessage").style.display = "none";
+            document.getElementById("showDmForm").style.display = "block";
+            document.getElementById("exitDm").style.display = "none";
+        }
+        function setUpDm() {
+            document.getElementById("exitDm").style.display = "block";
+            document.getElementById("showDmForm").style.display = "none";
+            document.getElementById("directmessage").style.display = "none";
+            usertoDm = document.getElementById("nametoDm").value;
+            userFrom = user;
+            document.getElementById("dmAlert").style.display = "block";
+            document.getElementById("dmAlert").innerText = "You are now DMing " + usertoDm;
+            dmCheck = true;
+            let curId = "message_input" + newroom;
+            let msg = document.getElementById(curId).value;
+        }
+        function exitDm() {
+            dmCheck = false;
+            document.getElementById("dmAlert").style.display = "none";
+            hideDmForm();
+        }
+        // function setUpDm() {
+        //     alert("setUpDm");
+        //     document.getElementById("exitDm").style.display = "block";
+        //     document.getElementById("showDmForm").style.display = "none";
+        //     document.getElementById("directmessage").style.display = "none";
+        //     usertoDm = document.getElementById("nametoDm").value;
+        //     userFrom = user;
+        //     dmCheck = true;
+        //     let curId = "message_input" + newroom;
+        //     let msg = document.getElementById(curId).value;
+        // }
+        // function exitDm() {
+        //     dmCheck = false;
+        //     hideDmForm();
+        // }
+
+        //////////// Remove + Ban User Code /////////////////////////////////////////////////////////////////
+        function showRemoveForm() {
+            document.getElementById("removeuser").style.display = "block";
+            document.getElementById("showremoveuser").style.display = "none";
+        }
+
+        function hideRemoveForm() {
+            document.getElementById("removeuser").style.display = "none";
+            document.getElementById("showremoveuser").style.display = "block";
+        }
+
+        function showBanForm() {
+            document.getElementById("banuser").style.display = "block";
+            document.getElementById("showbanuser").style.display = "none";
+        }
+
+        function hideBanForm() {
+            document.getElementById("banuser").style.display = "none";
+            document.getElementById("showbanuser").style.display = "block";
+        }
+
+        function sendRemoval() {
+            let username = document.getElementById("nametoremove").value;
+            socketio.emit("removeuser", { name: username, roomnumber: newroom });
+        }
+
+        function sendBan() {
+            let username = document.getElementById("nametoban").value;
+            socketio.emit("banuser", { name: username, roomnumber: newroom });
+        }
+
+        socketio.on('removeuser', function (data) {
+            let usertoremove = data["name"];
+            if (usertoremove == user) { //and room equals userroom
+                alert("You have been removed from the chat room");
+                gohome();
+            }
+        });
+
+        socketio.on('banuser', function (data) {
+            let usertoremove = data["name"];
+            if (usertoremove == user) { //and room equals userroom
+                alert("you have been banned from the chat room");
+                bannedRooms.push(data["room"]);
+                for (let i = 1; i < rooms.length; i++) {
+                    if (bannedRooms.indexOf(i) != -1) {
+                        document.getElementById(i).remove();
+                    }
+            }
+                gohome();
+            } 
+        });
+
+        ///////// Username Code //////////////////////////////////////////////////////////////////////////////////////////
+        let user;
+        //Send username to js
+        function setUsername() {
+            let newname = document.getElementById('nameinput').value;
+            newname = newname.trim();
+            newname = newname.toLowerCase();
+            socketio.emit('setUsername', { username: newname, room: newroom }); //send room also
+        };
+
+        //if the user already exists, fill the error-container
+        socketio.on('userExists', function (data) {
+            document.getElementById('error-container').innerHTML = data;
+        });
+
+        //if the user is properly set, set our current user 
+        socketio.on('userSet', function (data) {
+            alert("you have been logged in succesfully")
+            user = data["username"];
+            document.getElementById("username-container").innerHTML = user + "'s chat channel";
+            document.getElementById("makeroom").style.display = "none";
+            document.getElementById("showcreatepublicroom").style.display = "block";
+            document.getElementById("makeprivateroom").style.display = "none";
+            document.getElementById("showcreateprivateroom").style.display = "block";
+            document.getElementById("rooms").style.display = "block";
+            document.getElementById("nameinput").style.display = "none";
+            document.getElementById("submitname").style.display = "none";
+            document.getElementById("error-container").style.display = "none";
+            document.getElementById("showIndividualChange").style.display = "block";
+            document.getElementById("adminContainer").style.display = "block";
+        });
+
+        //////////// Online Users Code /////////////////////// 
+        socketio.on('printactives', function (data) {
+            document.getElementById("activeusers").innerHTML = "list of online users: ";
+            let masterList = data["activeusers"];
+
+            masterList[newroom].forEach(element => {
+                list = document.getElementById("activeusers");
+                usernameholder = document.createElement("li");
+                usernameholder.innerText = element;
+                list.appendChild(usernameholder);
+            });
+        });
+
+
+        ////////////////CREATIVE: THEME CHANGES /////////////////////////////////////////////////
+        function showIndividualChange() {
+            document.getElementById("groupThemeOptions").style.display = "none";
+            document.getElementById("showGroupChange").style.display = "none";
+            document.getElementById("individualThemeOptions").style.display = "block";
+            document.getElementById("showIndividualChange").style.display = "none";
+        }
+
+        function showGroupChange() {
+            document.getElementById("individualThemeOptions").style.display = "none";
+            document.getElementById("showIndividualChange").style.display = "none";
+            document.getElementById("groupThemeOptions").style.display = "block";
+            document.getElementById("showGroupChange").style.display = "none";
+        }
+
+        function hideIndividualThemeOptions() {
+            document.getElementById("individualThemeOptions").style.display = "none";
+            document.getElementById("showIndividualChange").style.display = "block";
+            if (admin){
+            document.getElementById("showGroupChange").style.display = "block";
+            }
+        }
+
+        function hideGroupThemeOptions() {
+            document.getElementById("groupThemeOptions").style.display = "none";
+            if (admin){
+            document.getElementById("showGroupChange").style.display = "block";
+            }
+            document.getElementById("showIndividualChange").style.display = "block";
+        }
+
+        //////////// Now to actually change the theme ///////////////
+        function siteToEarthTheme() {
+            socketio.emit("siteToEarthTheme", { username: user });
+        }
+
+        function siteToOceanTheme() {
+            socketio.emit("siteToOceanTheme", { username: user });
+        }
+
+        function siteToSpaceTheme() {
+            socketio.emit("siteToSpaceTheme", { username: user });
+        }
+
+        function siteToUSATheme() {
+            socketio.emit("siteToUSATheme", { username: user });
+        }
+
+        function siteToFireTheme() {
+            socketio.emit("siteToFireTheme", { username: user });
+        }
+
+        function siteToStandardTheme() {
+            socketio.emit("siteToStandardTheme", { username: user });
+        }
+
+        /////////// RECIEVE FROM JS
+        socketio.on('toEarthTheme', function (data) {
+            alert(data['user'] + " changed the site's theme to Earth Theme!");
+            toEarthTheme();
+        });
+
+        socketio.on('toOceanTheme', function (data) {
+            alert(data['user'] + " changed the site's theme to Ocean Theme!");
+            toOceanTheme();
+        });
+
+        socketio.on('toSpaceTheme', function (data) {
+            alert(data['user'] + " changed the site's theme to Space Theme!");
+            toSpaceTheme();
+        });
+
+        socketio.on('toFireTheme', function (data) {
+            alert(data['user'] + " changed the site's theme to Fire Theme!");
+            toFireTheme();
+        });
+
+        socketio.on('toUSATheme', function (data) {
+            alert(data['user'] + " changed the site's theme to USA Theme!");
+            toUSATheme();
+        });
+
+        socketio.on('toStandardTheme', function (data) {
+            alert(data['user'] + " changed the site's theme to Standard Theme!");
+            toStandardTheme();
+        });
+
+        // handle individual changes
+        function toEarthTheme() {
+            document.getElementById("activeusercontainer").removeAttribute("style");
+            document.getElementById("maincontainer").removeAttribute("style");
+            document.getElementById("showIndividualChange").removeAttribute("class");
+            document.getElementById("showGroupChange").removeAttribute("class");
+            document.getElementById("toEarthTheme").removeAttribute("class");
+            document.getElementById("toSpaceTheme").removeAttribute("class");
+            document.getElementById("toFireTheme").removeAttribute("class");
+            document.getElementById("toOceanTheme").removeAttribute("class");
+            document.getElementById("toUSATheme").removeAttribute("class");
+            document.getElementById("siteToEarthTheme").removeAttribute("class");
+            document.getElementById("siteToSpaceTheme").removeAttribute("class");
+            document.getElementById("siteToFireTheme").removeAttribute("class");
+            document.getElementById("siteToOceanTheme").removeAttribute("class");
+            document.getElementById("siteToUSATheme").removeAttribute("class");
+            document.getElementById("chatRooms").removeAttribute("style");
+
+            document.getElementById("activeusercontainer").setAttribute("style", "background-color: burlywood");
+            document.getElementById("maincontainer").setAttribute("style", "background-color: forestgreen");
+            document.getElementById("showIndividualChange").setAttribute("class", "btn-primary");
+            document.getElementById("showGroupChange").setAttribute("class", "btn-primary");
+            document.getElementById("toEarthTheme").setAttribute("class", "btn-success");
+            document.getElementById("toSpaceTheme").setAttribute("class", "btn-success");
+            document.getElementById("toFireTheme").setAttribute("class", "btn-success");
+            document.getElementById("toOceanTheme").setAttribute("class", "btn-success");
+            document.getElementById("toUSATheme").setAttribute("class", "btn-success");
+            document.getElementById("siteToEarthTheme").setAttribute("class", "btn-success");
+            document.getElementById("siteToSpaceTheme").setAttribute("class", "btn-success");
+            document.getElementById("siteToFireTheme").setAttribute("class", "btn-success");
+            document.getElementById("siteToOceanTheme").setAttribute("class", "btn-success");
+            document.getElementById("siteToUSATheme").setAttribute("class", "btn-success");
+            document.getElementById("chatRooms").setAttribute("style", "background-color: skyblue");
+
+
+            hideIndividualThemeOptions();
+            hideGroupThemeOptions();
+        }
+
+        function toOceanTheme() {
+            document.getElementById("activeusercontainer").removeAttribute("style");
+            document.getElementById("maincontainer").removeAttribute("style");
+            document.getElementById("showIndividualChange").removeAttribute("class");
+            document.getElementById("showGroupChange").removeAttribute("class");
+            document.getElementById("toEarthTheme").removeAttribute("class");
+            document.getElementById("toSpaceTheme").removeAttribute("class");
+            document.getElementById("toFireTheme").removeAttribute("class");
+            document.getElementById("toOceanTheme").removeAttribute("class");
+            document.getElementById("toUSATheme").removeAttribute("class");
+            document.getElementById("siteToEarthTheme").removeAttribute("class");
+            document.getElementById("siteToSpaceTheme").removeAttribute("class");
+            document.getElementById("siteToFireTheme").removeAttribute("class");
+            document.getElementById("siteToOceanTheme").removeAttribute("class");
+            document.getElementById("siteToUSATheme").removeAttribute("class");
+            document.getElementById("chatRooms").removeAttribute("style");
+
+            document.getElementById("activeusercontainer").setAttribute("style", "background-color: royalblue");
+            document.getElementById("maincontainer").setAttribute("style", "background-color: cyan");
+            document.getElementById("showIndividualChange").setAttribute("class", "btn-primary");
+            document.getElementById("showGroupChange").setAttribute("class", "btn-primary");
+            document.getElementById("toEarthTheme").setAttribute("class", "btn btn-success");
+            document.getElementById("toSpaceTheme").setAttribute("class", "btn btn-success");
+            document.getElementById("toFireTheme").setAttribute("class", "btn btn-success");
+            document.getElementById("toOceanTheme").setAttribute("class", "btn btn-success");
+            document.getElementById("toUSATheme").setAttribute("class", "btn btn-success");
+            document.getElementById("siteToEarthTheme").setAttribute("class", "btn btn-success");
+            document.getElementById("siteToSpaceTheme").setAttribute("class", "btn btn-success");
+            document.getElementById("siteToFireTheme").setAttribute("class", "btn btn-success");
+            document.getElementById("siteToOceanTheme").setAttribute("class", "btn btn-success");
+            document.getElementById("siteToUSATheme").setAttribute("class", "btn btn-success");
+            document.getElementById("chatRooms").setAttribute("style", "background-color: aliceblue");
+
+
+            hideIndividualThemeOptions();
+            hideGroupThemeOptions();
+        }
+
+        function toSpaceTheme() {
+            document.getElementById("activeusercontainer").removeAttribute("style");
+            document.getElementById("maincontainer").removeAttribute("style");
+            document.getElementById("showIndividualChange").removeAttribute("class");
+            document.getElementById("showGroupChange").removeAttribute("class");
+            document.getElementById("toEarthTheme").removeAttribute("class");
+            document.getElementById("toSpaceTheme").removeAttribute("class");
+            document.getElementById("toFireTheme").removeAttribute("class");
+            document.getElementById("toOceanTheme").removeAttribute("class");
+            document.getElementById("toUSATheme").removeAttribute("class");
+            document.getElementById("siteToEarthTheme").removeAttribute("class");
+            document.getElementById("siteToSpaceTheme").removeAttribute("class");
+            document.getElementById("siteToFireTheme").removeAttribute("class");
+            document.getElementById("siteToOceanTheme").removeAttribute("class");
+            document.getElementById("siteToUSATheme").removeAttribute("class");
+            document.getElementById("chatRooms").removeAttribute("style");
+
+            document.getElementById("activeusercontainer").setAttribute("style", "background-color: darkgray");
+            document.getElementById("maincontainer").setAttribute("style", "background-color: black");
+            document.getElementById("showIndividualChange").setAttribute("class", "btn-primary");
+            document.getElementById("showGroupChange").setAttribute("class", "btn-primary");
+            document.getElementById("toEarthTheme").setAttribute("class", "btn-light");
+            document.getElementById("toSpaceTheme").setAttribute("class", "btn-light");
+            document.getElementById("toFireTheme").setAttribute("class", "btn-light");
+            document.getElementById("toOceanTheme").setAttribute("class", "btn-light");
+            document.getElementById("toUSATheme").setAttribute("class", "btn-light");
+            document.getElementById("siteToEarthTheme").setAttribute("class", "btn-light");
+            document.getElementById("siteToSpaceTheme").setAttribute("class", "btn-light");
+            document.getElementById("siteToFireTheme").setAttribute("class", "btn-light");
+            document.getElementById("siteToOceanTheme").setAttribute("class", "btn-light");
+            document.getElementById("siteToUSATheme").setAttribute("class", "btn-light");
+            document.getElementById("chatRooms").setAttribute("style", "background-color: white");
+
+
+            hideIndividualThemeOptions();
+            hideGroupThemeOptions();
+        }
+
+        function toFireTheme() {
+            document.getElementById("activeusercontainer").removeAttribute("style");
+            document.getElementById("maincontainer").removeAttribute("style");
+            document.getElementById("showIndividualChange").removeAttribute("class");
+            document.getElementById("showGroupChange").removeAttribute("class");
+            document.getElementById("toEarthTheme").removeAttribute("class");
+            document.getElementById("toSpaceTheme").removeAttribute("class");
+            document.getElementById("toFireTheme").removeAttribute("class");
+            document.getElementById("toOceanTheme").removeAttribute("class");
+            document.getElementById("toUSATheme").removeAttribute("class");
+            document.getElementById("siteToEarthTheme").removeAttribute("class");
+            document.getElementById("siteToSpaceTheme").removeAttribute("class");
+            document.getElementById("siteToFireTheme").removeAttribute("class");
+            document.getElementById("siteToOceanTheme").removeAttribute("class");
+            document.getElementById("siteToUSATheme").removeAttribute("class");
+            document.getElementById("chatRooms").removeAttribute("style");
+
+            document.getElementById("activeusercontainer").setAttribute("style", "background-color: crimson");
+            document.getElementById("maincontainer").setAttribute("style", "background-color: darkorange");
+            document.getElementById("showIndividualChange").setAttribute("class", "btn-firebrick");
+            document.getElementById("showGroupChange").setAttribute("class", "btn-firebrick");
+            document.getElementById("toEarthTheme").setAttribute("class", "btn btn-warning");
+            document.getElementById("toSpaceTheme").setAttribute("class", "btn btn-warning");
+            document.getElementById("toFireTheme").setAttribute("class", "btn btn-warning");
+            document.getElementById("toOceanTheme").setAttribute("class", "btn btn-warning");
+            document.getElementById("toUSATheme").setAttribute("class", "btn btn-warning");
+            document.getElementById("siteToEarthTheme").setAttribute("class", "btn btn-warning");
+            document.getElementById("siteToSpaceTheme").setAttribute("class", "btn btn-warning");
+            document.getElementById("siteToFireTheme").setAttribute("class", "btn btn-warning");
+            document.getElementById("siteToOceanTheme").setAttribute("class", "btn btn-warning");
+            document.getElementById("siteToUSATheme").setAttribute("class", "btn btn-warning");
+            document.getElementById("chatRooms").setAttribute("style", "background-color: skyblue");
+
+
+            hideIndividualThemeOptions();
+            hideGroupThemeOptions();
+        }
+
+        function toUSATheme() {
+            document.getElementById("activeusercontainer").removeAttribute("style");
+            document.getElementById("maincontainer").removeAttribute("style");
+            document.getElementById("showIndividualChange").removeAttribute("class");
+            document.getElementById("showGroupChange").removeAttribute("class");
+            document.getElementById("toEarthTheme").removeAttribute("class");
+            document.getElementById("toSpaceTheme").removeAttribute("class");
+            document.getElementById("toFireTheme").removeAttribute("class");
+            document.getElementById("toOceanTheme").removeAttribute("class");
+            document.getElementById("toUSATheme").removeAttribute("class");
+            document.getElementById("siteToEarthTheme").removeAttribute("class");
+            document.getElementById("siteToSpaceTheme").removeAttribute("class");
+            document.getElementById("siteToFireTheme").removeAttribute("class");
+            document.getElementById("siteToOceanTheme").removeAttribute("class");
+            document.getElementById("siteToUSATheme").removeAttribute("class");
+            document.getElementById("chatRooms").removeAttribute("style");
+
+            document.getElementById("activeusercontainer").setAttribute("style", "background-color: red");
+            document.getElementById("maincontainer").setAttribute("style", "background-color: blue");
+            document.getElementById("showIndividualChange").setAttribute("class", "btn-primary");
+            document.getElementById("showGroupChange").setAttribute("class", "btn-danger");
+            document.getElementById("toEarthTheme").setAttribute("class", "btn btn-danger");
+            document.getElementById("toSpaceTheme").setAttribute("class", "btn btn-light");
+            document.getElementById("toFireTheme").setAttribute("class", "btn btn-primary");
+            document.getElementById("toOceanTheme").setAttribute("class", "btn btn-danger");
+            document.getElementById("toUSATheme").setAttribute("class", "btn btn-light");
+            document.getElementById("siteToEarthTheme").setAttribute("class", "btn btn-primary");
+            document.getElementById("siteToSpaceTheme").setAttribute("class", "btn btn-danger");
+            document.getElementById("siteToFireTheme").setAttribute("class", "btn btn-light");
+            document.getElementById("siteToOceanTheme").setAttribute("class", "btn btn-primary");
+            document.getElementById("siteToUSATheme").setAttribute("class", "btn btn-danger");
+            document.getElementById("chatRooms").setAttribute("style", "background-color: white");
+
+
+            hideIndividualThemeOptions();
+            hideGroupThemeOptions();
+        }
+
+        function toStandardTheme() {
+            document.getElementById("activeusercontainer").removeAttribute("style");
+            document.getElementById("maincontainer").removeAttribute("style");
+            document.getElementById("showIndividualChange").removeAttribute("class");
+            document.getElementById("showGroupChange").removeAttribute("class");
+            document.getElementById("toEarthTheme").removeAttribute("class");
+            document.getElementById("toSpaceTheme").removeAttribute("class");
+            document.getElementById("toFireTheme").removeAttribute("class");
+            document.getElementById("toOceanTheme").removeAttribute("class");
+            document.getElementById("toUSATheme").removeAttribute("class");
+            document.getElementById("siteToEarthTheme").removeAttribute("class");
+            document.getElementById("siteToSpaceTheme").removeAttribute("class");
+            document.getElementById("siteToFireTheme").removeAttribute("class");
+            document.getElementById("siteToOceanTheme").removeAttribute("class");
+            document.getElementById("siteToUSATheme").removeAttribute("class");
+            document.getElementById("chatRooms").removeAttribute("style");
+
+            document.getElementById("activeusercontainer").setAttribute("style", "background-color: cornflowerblue");
+            document.getElementById("maincontainer").setAttribute("style", "background-color: antiquewhite");
+            document.getElementById("showIndividualChange").setAttribute("class", "btn-warning");
+            document.getElementById("showGroupChange").setAttribute("class", "btn-warning");
+            document.getElementById("toEarthTheme").setAttribute("class", "btn-success");
+            document.getElementById("toSpaceTheme").setAttribute("class", "btn-success");
+            document.getElementById("toFireTheme").setAttribute("class", "btn-success");
+            document.getElementById("toOceanTheme").setAttribute("class", "btn-success");
+            document.getElementById("toUSATheme").setAttribute("class", "btn-success");
+            document.getElementById("siteToEarthTheme").setAttribute("class", "btn-success");
+            document.getElementById("siteToSpaceTheme").setAttribute("class", "btn-success");
+            document.getElementById("siteToFireTheme").setAttribute("class", "btn-success");
+            document.getElementById("siteToOceanTheme").setAttribute("class", "btn-success");
+            document.getElementById("siteToUSATheme").setAttribute("class", "btn-success");
+            document.getElementById("chatRooms").setAttribute("style", "background-color: aliceblue");
+
+            hideIndividualThemeOptions();
+            hideGroupThemeOptions();
+        }
+///////////////// ADMIN CREATIVE STUFF ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        let admin = false;
+        let actualAdminPass = "amazingjob";
+        function showAdminForm(){
+            document.getElementById("showadminform").style.display = "none";
+            document.getElementById("removeadmindiv").style.display = "none";
+            document.getElementById("adminForm").style.display = "block";
+        }
+
+        function removeAdminDiv(){
+            document.getElementById("adminContainer").remove();
+        }
+
+        function hideAdminForm(){
+            document.getElementById("removeadmindiv").style.display = "block";
+            document.getElementById("adminForm").style.display = "none";
+            document.getElementById("showadminform").style.display = "block";
+        }
+
+
+        function checkAdminPass(){
+            let p = document.getElementById("adminPass").value;
+            p = p.trim();
+            if (p == actualAdminPass){
+                admin = true;
+                removeAdminDiv();
+                document.getElementById("showGroupChange").style.display = "block";
+            } else {
+                document.getElementById("incorrectAdminPass").style.display = "block";
+            }
+        }
+
+    </script>
+
+</head>
+<!-- So what we can see is that the first room made has as many chat buttons shown as the
+number of rooms there are... i.e., if there are 3 rooms, room 1 will have 3 chat buttons
+ONLY SEEN IF THE USER IS THERE WHEN THE ROOMS ARE MADE  -->
+
+<body>
+
+
+    <div id="activeusercontainer" class="container" style="background-color:cornflowerblue;">
+        <ul id="activeusers"></ul>
+        <button type="button" id="showIndividualChange" onclick="showIndividualChange()" class="btn btn-warning">Change
+            Personal Theme</button>
+        <button type="button" id="showGroupChange" onclick="showGroupChange()" class="btn btn-warning">Change Site
+            Theme</button>
+
+        <div id="individualThemeOptions">
+            <button type="button" id="hideIndividualThemeOptions" onclick="hideIndividualThemeOptions()">Back</button>
+            <button type="button" id="toEarthTheme" onclick="toEarthTheme()" class="btn-success">Change To Earth
+                Theme</button>
+            <button type="button" id="toSpaceTheme" onclick="toSpaceTheme()" class="btn-success">Change To Space
+                Theme</button>
+            <button type="button" id="toOceanTheme" onclick="toOceanTheme()" class="btn-success">Change To Ocean
+                Theme</button>
+            <button type="button" id="toFireTheme" onclick="toFireTheme()" class="btn-success">Change To Fire
+                Theme</button>
+            <button type="button" id="toUSATheme" onclick="toUSATheme()" class="btn-success">Change To USA
+                Theme</button>
+            <button type="button" id="toStandardTheme" onclick="toStandardTheme()" class="btn-danger">Revert to
+                Standard</button>
+        </div>
+
+        <div id="groupThemeOptions">
+            <button type="button" id="hideGroupThemeOptions" onclick="hideGroupThemeOptions()">Back</button>
+            <button type="button" id="siteToEarthTheme" onclick="siteToEarthTheme()" class="btn-success">Change To Earth
+                Theme</button>
+            <button type="button" id="siteToSpaceTheme" onclick="siteToSpaceTheme()" class="btn-success">Change To Space
+                Theme</button>
+            <button type="button" id="siteToOceanTheme" onclick="siteToOceanTheme()" class="btn-success">Change To Ocean
+                Theme</button>
+            <button type="button" id="siteToFireTheme" onclick="siteToFireTheme()" class="btn-success">Change To Fire
+                Theme</button>
+            <button type="button" id="siteToUSATheme" onclick="siteToUSATheme()" class="btn-success">Change To USA
+                Theme</button>
+            <button type="button" id="siteToStandardTheme" onclick="siteToStandardTheme()" class="btn-danger">Revert to
+                Standard</button>
+        </div>
+        <br>
+    </div>
+
+
+    <div class = "container" id = "adminContainer" style = "background-color: yellowgreen">
+        <br>
+        <h3 id = "incorrectAdminPass" class = "alert-warning">Incorrect Password.</h3>
+        <button type = "button" id = "showadminform" onclick = "showAdminForm()" class = "btn btn-primary">I am an Admin</button> 
+        <button type = "button" id = "removeadmindiv" onclick = "removeAdminDiv()" class = "btn btn-warning">I am not an Admin</button>
+        <br>
+        <div id = "adminForm">
+            <button type = "button" id = "hideAdminForm" onclick = "hideAdminForm()" class = "form-control">Back</button>
+            <input type = "text" id = "adminPass" placeholder = "Password" class = "form-control"/>
+            <button type = "button" id = "checkAdminPass" onclick = "checkAdminPass()" class = "form-control">Enter</button>
+        </div>
+        <br>
+    </div>
+
+
+
+    <div id="maincontainer" class="container" style="background-color: antiquewhite;">
+
+        <br>
+        <button type="button" id="homebutton" onclick="gohome()" class="btn btn-primary">Home</button>
+        <div id="error-container" class="text-danger"></div>
+        <h1 id="username-container">Welcome</h1>
+        <h2 id="roomlabel">Home Room</h2>
+
+        <div class="form-group">
+            <input type="text" id="nameinput" value="" placeholder="Enter a username!" class="form-control">
+            <button type="button" id="submitname" name="button" onclick="setUsername()"
+                class="btn btn-primary">Enter</button>
+        </div>
+
+        <button type="button" id="showcreatepublicroom" onclick="showCreatePublic()" class="btn btn-success">Create
+            Public Room</button>
+        <div id="makeroom">
+            <button type="button" id="hidecreatepublicroom" onclick="hideCreatePublic()">Back</button>
+            <input type="text" id="room_name" class="makeroomform" required />
+            <button class="makeroomform" onclick="sendRoomName()">Create</button>
+        </div>
+
+        <button type="button" id="showcreateprivateroom" onclick="showCreatePrivate()" class="btn btn-success">Create
+            Private Room</button>
+        <div id="makeprivateroom">
+            <form>
+                <button type="button" id="hidecreateprivateroom" onclick="hideCreatePrivate()">Back</button>
+                <input type="text" id="private_room_name" placeholder="room name" required />
+                <input type="text" id="private_room_password" placeholder="password" required />
+                <button type="button" onclick="sendPrivateRoomName()">Create</button>
+            </form>
+        </div>
+
+        <div id="passwordguess">
+            <input class="form-control" type="text" placeholder="password" id="guessedpass" required />
+            <button type="button" id="guess" onclick="checkPassword()">Submit</button>
+        </div>
+
+        <button type="button" id="showremoveuser" onclick="showRemoveForm()" class="btn btn-warning">Remove
+            User</button>
+        <div id="removeuser">
+            <button type="button" id="hideremoveuser" onclick="hideRemoveForm()">Back</button>
+            <input type="text" id="nametoremove" placeholder="user to remove" required>
+            <button type="button" id="submitremove" onclick="sendRemoval()" class="btn btn-danger">Remove</button>
+        </div>
+
+        <button type="button" id="showbanuser" onclick="showBanForm()" class="btn btn-warning">Ban User</button>
+        <div id="banuser">
+            <button type="button" id="hidebanuser" onclick="hideBanForm()">Back</button>
+            <input type="text" id="nametoban" placeholder="user to ban" required>
+            <button type="button" id="submitban" onclick="sendBan()" class="btn btn-danger">Ban</button>
+        </div>
+
+        <button type="button" id="showDmForm" onclick="showDmForm()" class = "btn btn-success">Direct Message</button>
+        <form id="directmessage">
+            <button type="button" id="hideDm" onclick="hideDmForm()">Back</button>
+            <input type="text" id="nametoDm" placeholder= "Send direct to..." required>
+            <button type="button" id="submitDm" onclick="setUpDm()" class = "btn btn-primary">DM</button>
+        </form>
+    
+        <button type="button" id="exitDm" onclick="exitDm()">Back to Main Chat</button>
+        <div class = "alert-info" id = "dmAlert"> You are now using the private message feature </div>
+        <div id="rooms" class="btn-group"></div>
+        <div id="chatRooms" style="background-color: aliceblue; font-size: larger;"></div>
+        <br><br>
+    </div>
+
+    <!--Some initial styling, set everything to hidden until the user logs in-->
+    <script>
+        document.getElementById("rooms").style.display = "none";
+        document.getElementById("homebutton").style.display = "none";
+        document.getElementById("removeuser").style.display = "none";
+        document.getElementById("showremoveuser").style.display = "none";
+        document.getElementById("showbanuser").style.display = "none";
+        document.getElementById("removeuser").style.display = "none";
+        document.getElementById("banuser").style.display = "none";
+        document.getElementById("makeroom").style.display = "none";
+        document.getElementById("showcreatepublicroom").style.display = "none";
+        document.getElementById("makeprivateroom").style.display = "none";
+        document.getElementById("showcreateprivateroom").style.display = "none";
+        document.getElementById("passwordguess").style.display = "none";
+        document.getElementById("individualThemeOptions").style.display = "none";
+        document.getElementById("groupThemeOptions").style.display = "none";
+        document.getElementById("showIndividualChange").style.display = "none";
+        document.getElementById("showGroupChange").style.display = "none";
+        document.getElementById("directmessage").style.display = "none";
+        document.getElementById("showDmForm").style.display = "none";
+        document.getElementById("exitDm").style.display = "none";
+        document.getElementById("dmAlert").style.display = "none";
+        document.getElementById("adminContainer").style.display = "none";
+        document.getElementById("adminForm").style.display = "none";
+        document.getElementById("incorrectAdminPass").style.display = "none";
+    </script>
+
+</body>
+
+</html>
