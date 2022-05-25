@@ -1,0 +1,54 @@
+
+{% extends 'base_layout.html' %}
+
+{% block content %}
+<form id = "deleteroom_form" action = "{% url 'deleteroom' %}" method = "post">
+    {%csrf_token%}
+    <input type = "submit" value = "Delete Room">
+</form>
+
+<h3>
+    Key: 
+</h3>
+<p>
+    Hits: 5pts | Dingers: 15pts | Runs: 10pts | Strikeouts: -5pts, 10pts for 0 strikeouts, -30pts for 4+ strikeouts
+</p>
+
+<h1 id = "message-box">{{message}}</h1>
+
+<form action = "{% url 'gameroom' slug %}" method = "post" id = "runsim">
+    {% csrf_token %}
+    <input type = "submit" value ="Simulate">
+</form>
+
+<ul>
+{% for lineup in lineups %}
+<li><strong>{{lineup.creator}}'s Lineup: </strong>{{lineup.name}}</li>
+<ul>
+    {% if simulated %}
+    <li>
+        Points: {{lineup.points}}
+        <ul>
+            <li>Hits: {{lineup.hits}}</li>
+            <li>Dingers: {{lineup.dingers}}</li>
+            <li>Runs: {{lineup.runs}}</li>
+            <li>Strikeouts: {{lineup.strikeouts}}</li>
+
+         </ul>
+    </li>
+    {% endif %}
+</ul>
+
+{% endfor %}
+</ul>
+
+<script>
+    value = document.getElementById("message-box").value
+    
+    if ("{{simulated}}" == "True"){
+        // alert("message box should be filled")
+        document.getElementById("runsim").remove()
+    }
+</script>
+
+{% endblock %}

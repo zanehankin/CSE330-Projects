@@ -1,0 +1,23 @@
+{% extends 'base_layout.html' %}
+
+{% block content %}
+        <h1>Personal Stats</h1>
+        <ul>
+            <li>Name: {{curuser}}</li>
+            <li>Win Streak: {{curuser.winstreak}}</li>
+            <li>Total Wins: {{curuser.totalWins}}</li>
+            <li>Total Coins: {{curuser.coins}}</li>
+            <li>User Since: {{curuser.birthday}}</li>
+        </ul>
+        <h1>Leaderboard</h1>
+        <ol> 
+            {% for user in users %}
+            {% if user == curuser %}
+            <li style="color:green;"><strong>{{user}}</strong></li>
+            {% else %}
+            <li>{{user}}</li>
+            {% endif %}
+            {% endfor %}
+        </ol>
+
+{% endblock %}

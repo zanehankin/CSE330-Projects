@@ -1,0 +1,111 @@
+{% extends 'base_layout.html' %}
+
+{% block content %}
+        <h1>Choose your fighters</h1>
+        <h2>You have <span id = "coins">{{coins}}</span> coins</h2>
+        <p>Welcome to this page there will be baseball stuff here</p>
+        
+        <!-- Indicate how many coins the user has.... will have lots of javascript on this page -->
+        <form class = "site-form" method = 'post' enctype="multipart/form-data" id = "form" action = "{% url 'createLineup' %}">
+            {%csrf_token%}
+            {{form}}
+            <input type = "Submit" value = "Create">
+        </form>
+        <p id = "output"></p>
+        <div id = "allboxes">
+        {% for player, value, num in relData %}
+        <div class = "player-button">
+            <input type="checkbox" class="form-check-input" id="{{num}}" value="{{value}}" name="{{player}}">
+            <label for = "{{num}}">{{player}}, <strong>{{value}}</strong></label>
+        </div> 
+        {% endfor %}
+        </div>
+        <script>
+        let count = 0
+        cost = 0
+        let coins = document.getElementById("coins").innerHTML
+        document.querySelector('#allboxes').onclick = function(ev) {
+            if(ev.target.value) {
+                
+                if(ev.target.checked){
+                    if (count >= 3){
+                        alert("can only add three players to lineup")
+                        ev.target.checked = false;
+                    } else if ((coins - ev.target.value) < 0){
+                        alert("You do not have enough coins to add this player")
+                        ev.target.checked = false;
+                    } else {
+                        count += 1
+                        let newstring = "player" + count
+                        document.getElementById("player"+count).value = ev.target.name
+                        coins -= parseInt(ev.target.value)
+                        cost += parseInt(ev.target.value)
+                        document.getElementById("coins").innerHTML = coins
+                        document.getElementById("cost").value = cost
+                    }
+                } else if(!ev.target.checked){
+                    let newstring = "player" + count
+                    document.getElementById("player"+count).value = " "
+                    coins += parseInt(ev.target.value)
+                    cost -= parseInt(ev.target.value)
+                    document.getElementById("coins").innerHTML = coins
+                    count -= 1
+                }
+            }
+        }
+
+        //  $('#form').on('submit', function(e){
+        //      alert("here 1")
+        //        $.ajax({
+        //             type : "POST", 
+        //             url: "{% url 'createLineup' %}",
+        //             data: {
+        //              coins : 100,
+        //              dataType: "json",
+        //             },
+        //             success: function(data){
+        //             alert("here")
+        //                $('#output').html(data.msg) /* response message */
+        //             },
+        //             failure: function() {   
+        //                 alert("error")
+        //             }
+        //         });
+        //         alert("here 2")
+        //              });
+
+        // function handlechange(id){
+        //     alert(document.getElementById(id).textContent)
+        // }
+        // for(let i = 0; i < 5; i++){
+        //     document.getElementById(i).addEventListener('change', handlechange(i))
+        // }
+
+    // $('#form').on('submit',function(e){
+    //     alert("here 1")
+    //     e.preventDefault();
+    //     alert("here 2")
+    //     // let coins = $('#coins').val();
+    //     //coins = document.getElementById("coins").value
+    //     coins = 100
+    //     alert(coins)
+    //     $.post('buildALineup.html',
+    //         {'coins': coins},   
+    //         function(response){ $('#output').text(response.msg); }
+    //     );
+    //     alert("here 4")
+    // }); 
+
+// $.ajax({
+//   type: "POST",
+//   url: '/create-lineup/',
+//   data: coins,
+//   success: success,
+//   dataType: dataType
+// });
+    // $('#form').on('submit',function(e){
+    //     $.post( "buildALineup.html", { 'coins': '100'} );
+    // })
+        </script>
+
+{% endblock %}

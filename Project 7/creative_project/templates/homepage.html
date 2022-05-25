@@ -1,0 +1,32 @@
+{% extends 'base_layout.html' %}
+
+{% block content %}
+<div class = "rooms-view">
+        <h1>This is the Homepage</h1>
+        <p>This is where the user can make a lineup and submit it to a room</p>
+        <br>
+        <a class="btn-primary" href="{% url 'create_room'%}">Create Room</a>
+        {% if should_create == "True" %}
+        <a class="btn-primary" href="{% url 'createLineup'%}">Create Lineup</a>
+        {% endif %}
+        <div class = "rooms">
+            {% for room in rooms %}
+
+            <br><br>
+
+            <div class = "room">
+                <p><a class = "btn-secondary" href = "{% url 'gameroom' room.slug %}">{{room.roomName}}</a></p>
+                <!-- <h2><a href = "'login.html/'"></a>{{room.roomName}}</h2> -->
+
+            </div>
+
+            {% endfor %}
+        </div>
+    </div>
+        <script>
+            if("{{message}}" == "There are no lineups in this room yet!"){
+                alert("{{message}}")
+            }
+        </script>
+
+{% endblock %}

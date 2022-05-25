@@ -1,0 +1,15 @@
+
+
+{% extends 'base_layout.html' %}
+
+{% block content %}
+    <h1> Create a Room </h1>
+    <p> Create a room for users to submit a lineup to </p>
+    <form class="site-form" action="{% url 'create_room' %}" method="post">
+        {% csrf_token %}
+        {{form}}
+        {{form.errors}}
+        <input type="submit" value="Create Room">
+    </form>
+    
+{% endblock %}
