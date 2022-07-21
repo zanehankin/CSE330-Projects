@@ -1,5 +1,3 @@
-# CSE330
-
 # Languages Used
 
 <ol>
