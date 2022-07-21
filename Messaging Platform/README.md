@@ -1,9 +1,5 @@
 # CSE330
 
-Jordan Shonfeld | 486498 | jordanshonfeld
-
-Zane Hankin | 487413 | zanehankin
-
 # Languages Used
 
 <ol>
